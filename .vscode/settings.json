@@ -1,5 +1,8 @@
 {
 	"files.associations": {
 		"cassert": "cpp"
-	}
+	},
+	"editor.defaultFormatter": "ms-vscode.cpptools",
+	"editor.formatOnPaste": false,
+	"editor.formatOnSave": true
 }
