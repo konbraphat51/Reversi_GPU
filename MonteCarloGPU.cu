@@ -14,4 +14,6 @@ int mcGPU_move(BoardState *state)
             board[BOARD_W * y + x] = state->board[x][y];
         }
     }
+    int activePlayer = state->active_player;
+    bool passed = state->passed;
 }
