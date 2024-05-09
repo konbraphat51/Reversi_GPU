@@ -1,6 +1,6 @@
 #include <cuda.h>
 
-int monteGPU_move(BoardState *state)
+int mcGPU_move(BoardState *state)
 {
     
 }
