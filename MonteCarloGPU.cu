@@ -17,3 +17,20 @@ int mcGPU_move(BoardState *state)
     int activePlayer = state->active_player;
     bool passed = state->passed;
 }
+
+__device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
+{
+    int movesBuffer[BOARD_W * BOARD_H];
+    int bufferIndex = 0;
+
+    for (int x = 0; x < BOARD_W; x++)
+    {
+        for (int y = 0; y < BOARD_H; y++)
+        {
+            if (board[BOARD_W * y + x] == activePlayer)
+            {
+                // map_adjacent
+            }
+        }
+    }
+}
