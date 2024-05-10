@@ -34,3 +34,32 @@ __device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
         }
     }
 }
+
+template <typename T>
+__device__ void map_adjacent(const int y, const int x, const T f)
+{
+
+    if (y > 0)
+    {
+        f(y - 1, x);
+        if (x > 0)
+            f(y - 1, x - 1);
+        if (x < (BOARD_W - 1))
+            f(y - 1, x + 1);
+    }
+
+    if (y < (BOARD_H - 1))
+    {
+        f(y + 1, x);
+        if (x > 0)
+            f(y + 1, x - 1);
+        if (x < (BOARD_W - 1))
+            f(y + 1, x + 1);
+    }
+
+    if (x > 0)
+        f(y, x - 1);
+
+    if (x < (BOARD_W - 1))
+        f(y, x + 1);
+}
