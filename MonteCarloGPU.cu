@@ -21,6 +21,12 @@ int mcGPU_move(BoardState *state)
 __device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
 {
     int movesBuffer[BOARD_W * BOARD_H];
+    // initialize buffer with -1
+    for (int i = 0; i < BOARD_W * BOARD_H; i++)
+    {
+        movesBuffer[i] = -1;
+    }
+
     int bufferIndex = 0;
 
     for (int x = 0; x < BOARD_W; x++)
@@ -29,10 +35,41 @@ __device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
         {
             if (board[BOARD_W * y + x] == activePlayer)
             {
-                // map_adjacent
+                auto f = [&](int _y, int _x)
+                {
+                    if (board[BOARD_W * _y + _x] == OTHER(activePlayer))
+                    {
+
+                        const int dx = _x - x;
+                        const int dy = _y - y;
+
+                        while (true)
+                        {
+                            _x += dx;
+                            _y += dy;
+
+                            if (!BOUNDS(_y, _x))
+                                break;
+
+                            if (board[BOARD_W * _y + _x] == activePlayer)
+                                break;
+
+                            if (board[BOARD_W * _y + _x] == EMPTY)
+                            {
+                                movesBuffer[bufferIndex] = BOARD_W * _y + _x;
+                                bufferIndex++;
+                                break;
+                            }
+                        }
+                    }
+                };
+
+                map_adjacent(y, x, f);
             }
         }
     }
+
+    return movesBuffer;
 }
 
 template <typename T>
