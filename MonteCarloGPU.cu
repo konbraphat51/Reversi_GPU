@@ -18,6 +18,19 @@ int mcGPU_move(BoardState *state)
     bool passed = state->passed;
 }
 
+__global__ void mcGPU_kernel(int *board, int activePlayer, bool passed)
+{
+    // copy board
+    int boardCopy[BOARD_H * BOARD_W];
+    for (int x = 0; x < BOARD_W; x++)
+    {
+        for (int y = 0; y < BOARD_H; y++)
+        {
+            boardCopy[BOARD_W * y + x] = board[BOARD_W * y + x];
+        }
+    }
+}
+
 __device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
 {
     int movesBuffer[BOARD_W * BOARD_H];
