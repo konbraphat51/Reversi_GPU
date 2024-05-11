@@ -85,6 +85,68 @@ __device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
     return movesBuffer;
 }
 
+__device__ void apply_move(
+    const int move,
+    int *board,
+    int &active_player,
+    bool &passed)
+{
+    // pass
+    if (move == -1)
+    {
+        passed = true;
+    }
+    else
+    {
+        passed = false;
+        assert(board[move] == EMPTY);
+        board[move] = active_player;
+
+        auto f = [&](int y, int x)
+        {
+            if (board[BOARD_W * y + x] == OTHER(active_player))
+            {
+
+                const int dx = x - move % BOARD_W;
+                const int dy = y - move / BOARD_W;
+
+                while (true)
+                {
+                    x += dx;
+                    y += dy;
+
+                    if (!BOUNDS(y, x))
+                        break;
+
+                    if (board[BOARD_W * y + x] == active_player)
+                    {
+                        while (true)
+                        {
+                            x -= dx;
+                            y -= dy;
+
+                            if (board[BOARD_W * y + x] == active_player)
+                                break;
+
+                            board[BOARD_W * y + x] = active_player;
+                        }
+                        break;
+                    }
+
+                    if (board[BOARD_W * y + x] == EMPTY)
+                    {
+                        break;
+                    }
+                }
+            }
+        };
+
+        map_adjacent(move / BOARD_W, move % BOARD_W, f);
+    }
+
+    active_player = OTHER(active_player);
+}
+
 template <typename T>
 __device__ void map_adjacent(const int y, const int x, const T f)
 {
