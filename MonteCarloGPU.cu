@@ -5,14 +5,6 @@
 
 int mcGPU_move(BoardState *state, int threads)
 {
-    // pass if no valid moves
-    auto valid_moves = state->moves();
-    if (valid_moves.size() == 0)
-    {
-        state->apply(PASS);
-        return false;
-    }
-
     // convert BoardState to a format that can be used by the GPU
     int board[BOARD_H * BOARD_W];
     for (int x = 0; x < BOARD_W; x++)
@@ -25,18 +17,26 @@ int mcGPU_move(BoardState *state, int threads)
     int activePlayer = state->active_player;
     bool passed = state->passed;
 
+    // pass if no valid moves
+    Moves *validMoves = get_valid_moves(board, activePlayer);
+    if (validMoves->length == 0)
+    {
+        state->apply(PASS);
+        return false;
+    }
+
     // set up GPU
     int *d_board;
     int *d_movesCount;
     int *d_movesWins;
 
     cudaMalloc(&d_board, BOARD_H * BOARD_W * sizeof(int));
-    cudaMalloc(&d_movesCount, valid_moves.size() * sizeof(int));
-    cudaMalloc(&d_movesWins, valid_moves.size() * sizeof(int));
+    cudaMalloc(&d_movesCount, validMoves->length * sizeof(int));
+    cudaMalloc(&d_movesWins, validMoves->length * sizeof(int));
 
     cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemset(d_movesCount, 0, valid_moves.size() * sizeof(int));
-    cudaMemset(d_movesWins, 0, valid_moves.size() * sizeof(int));
+    cudaMemset(d_movesCount, 0, validMoves->length * sizeof(int));
+    cudaMemset(d_movesWins, 0, validMoves->length * sizeof(int));
 
     dim3 dimBlock(threads);
     dim3 dimGrid(1);
@@ -44,8 +44,8 @@ int mcGPU_move(BoardState *state, int threads)
     mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_movesCount, d_movesWins);
 
     // get result
-    double *winRate = (double *)malloc(valid_moves.size() * sizeof(double));
-    for (int cnt = 0; cnt < valid_moves.size(); cnt++)
+    double *winRate = (double *)malloc(validMoves->length * sizeof(double));
+    for (int cnt = 0; cnt < validMoves->length; cnt++)
     {
         winRate[cnt] = (double)d_movesWins[cnt] / d_movesCount[cnt];
     }
@@ -54,6 +54,18 @@ int mcGPU_move(BoardState *state, int threads)
     cudaFree(d_board);
     cudaFree(d_movesCount);
     cudaFree(d_movesWins);
+
+    // find best move
+    int bestMove = -1;
+    double bestWinRate = -1;
+    for (int cnt = 0; cnt < validMoves->length; cnt++)
+    {
+        if (winRate[cnt] > bestWinRate)
+        {
+            bestWinRate = winRate[cnt];
+            bestMove = validMoves->moves[cnt];
+        }
+    }
 }
 
 __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
@@ -120,7 +132,7 @@ struct Moves
     int length;
 };
 
-__device__ Moves *get_valid_moves(int *board, int activePlayer)
+__device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 {
     int movesBuffer[BOARD_W * BOARD_H];
     // initialize buffer with -1
