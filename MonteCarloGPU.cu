@@ -66,6 +66,12 @@ int mcGPU_move(BoardState *state, int threads)
             bestMove = validMoves->moves[cnt];
         }
     }
+
+    // apply best move
+    Point p = Point(bestMove % BOARD_W, bestMove / BOARD_W);
+    state->apply(p);
+
+    return true;
 }
 
 __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
