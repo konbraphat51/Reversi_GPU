@@ -58,6 +58,9 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *res
             apply_move(move, boardCopy, activePlayer, passed);
         }
     }
+
+    // save winner
+    result[threadId] = winner(boardCopy);
 }
 
 struct Moves
