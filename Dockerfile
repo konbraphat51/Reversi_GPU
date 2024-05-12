@@ -21,6 +21,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+#git settings
+RUN git config --global credential.helper store 
+
 # Install NVIDA HPC SDK
 WORKDIR /installs/nvidia
 RUN wget  https://developer.download.nvidia.com/hpc-sdk/24.3/nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz
