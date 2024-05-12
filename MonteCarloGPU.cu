@@ -18,8 +18,11 @@ int mcGPU_move(BoardState *state)
     bool passed = state->passed;
 }
 
-__global__ void mcGPU_kernel(int *board, int activePlayer, bool passed)
+__global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *result)
 {
+    int threadId = blockIdx.x * blockDim.x + threadIdx.x;
+    int seed = threadId;
+
     // copy board
     int boardCopy[BOARD_H * BOARD_W];
     for (int x = 0; x < BOARD_W; x++)
