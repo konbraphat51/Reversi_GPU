@@ -177,8 +177,7 @@ __device__ void map_adjacent(const int y, const int x, const T f)
 }
 
 __device__ int winner(
-    const int *board
-)
+    const int *board)
 {
     int w_score = 0;
     int b_score = 0;
@@ -199,4 +198,14 @@ __device__ int winner(
     if (w_score < b_score)
         return BLACK;
     return EMPTY;
+}
+
+__device__ int ComputeRandom(int &seed, int maxExclusive)
+{
+    // https://dl.acm.org/doi/10.1145/159544.376068
+    int raw = (48271 * seed) % 2147483647;
+
+    seed++;
+
+    return raw % maxExclusive;
 }
