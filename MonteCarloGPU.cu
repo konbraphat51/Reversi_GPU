@@ -38,9 +38,18 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *res
     {
         Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
 
-        if (passed)
+        if (validMoves->length == 0)
         {
-            break;
+            if (passed)
+            {
+                // both passed, game is over
+                break;
+            }
+            else
+            {
+                // first pass
+                passed = true;
+            }
         }
     }
 }
