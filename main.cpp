@@ -48,8 +48,8 @@ int main(int argc, char **argv)
 {
   srand(10101010);
 
-  int p1_strategy = 0;
-  int p2_strategy = 1;
+  int p1_strategy = 17;
+  int p2_strategy = 9;
   int rounds = 1;
   bool print_states = false;
 
