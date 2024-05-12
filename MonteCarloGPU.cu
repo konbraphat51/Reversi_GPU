@@ -3,7 +3,7 @@
 #include "board.h"
 #include "util.h"
 
-int mcGPU_move(BoardState *state)
+int mcGPU_move(BoardState *state, int threads)
 {
     // convert BoardState to a format that can be used by the GPU
     int board[BOARD_H * BOARD_W];
@@ -16,6 +16,29 @@ int mcGPU_move(BoardState *state)
     }
     int activePlayer = state->active_player;
     bool passed = state->passed;
+
+    // set up GPU
+    int *d_board;
+    int *d_result;
+
+    cudaMalloc(&d_board, BOARD_H * BOARD_W * sizeof(int));
+    cudaMalloc(&d_result, threads * sizeof(int));
+
+    cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemset(d_result, -2, threads * sizeof(int));
+
+    dim3 dimBlock(threads);
+    dim3 dimGrid(1);
+
+    mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_result);
+
+    // get result
+    int *result = (int *)malloc(threads * sizeof(int));
+    cudaMemcpy(result, d_result, threads * sizeof(int), cudaMemcpyDeviceToHost);
+
+    // free memory
+    cudaFree(d_board);
+    cudaFree(d_result);
 }
 
 __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *result)
