@@ -4,6 +4,7 @@
 #include <functional>
 #include <cmath>
 #include <cassert>
+#include <string>
 
 #include "board.h"
 #include "util.h"
