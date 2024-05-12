@@ -51,6 +51,12 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *res
                 passed = true;
             }
         }
+        else
+        {
+            // choose a random move
+            int move = validMoves->moves[ComputeRandom(seed, validMoves->length)];
+            apply_move(move, boardCopy, activePlayer, passed);
+        }
     }
 }
 
