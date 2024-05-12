@@ -34,7 +34,13 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *res
     }
 }
 
-__device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
+struct Moves
+{
+    int *moves;
+    int length;
+};
+
+__device__ Moves *get_valid_moves(int *board, int activePlayer, bool passed)
 {
     int movesBuffer[BOARD_W * BOARD_H];
     // initialize buffer with -1
@@ -85,7 +91,11 @@ __device__ int *get_valid_moves(int *board, int activePlayer, bool passed)
         }
     }
 
-    return movesBuffer;
+    Moves *moves = new Moves();
+    moves->moves = movesBuffer;
+    moves->length = bufferIndex;
+
+    return moves;
 }
 
 __device__ void apply_move(
