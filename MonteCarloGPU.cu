@@ -32,6 +32,17 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *res
             boardCopy[BOARD_W * y + x] = board[BOARD_W * y + x];
         }
     }
+
+    // monte carlo simulation
+    for (;;)
+    {
+        Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
+
+        if (passed)
+        {
+            break;
+        }
+    }
 }
 
 struct Moves
@@ -40,7 +51,7 @@ struct Moves
     int length;
 };
 
-__device__ Moves *get_valid_moves(int *board, int activePlayer, bool passed)
+__device__ Moves *get_valid_moves(int *board, int activePlayer)
 {
     int movesBuffer[BOARD_W * BOARD_H];
     // initialize buffer with -1
