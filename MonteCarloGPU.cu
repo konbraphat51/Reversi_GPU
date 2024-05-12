@@ -175,3 +175,28 @@ __device__ void map_adjacent(const int y, const int x, const T f)
     if (x < (BOARD_W - 1))
         f(y, x + 1);
 }
+
+__device__ int winner(
+    const int *board
+)
+{
+    int w_score = 0;
+    int b_score = 0;
+
+    for (int i = 0; i < BOARD_H; ++i)
+    {
+        for (int j = 0; j < BOARD_W; ++j)
+        {
+            if (board[i * BOARD_W + j] == WHITE)
+                w_score++;
+            else if (board[i * BOARD_W + j] == BLACK)
+                b_score++;
+        }
+    }
+
+    if (w_score > b_score)
+        return WHITE;
+    if (w_score < b_score)
+        return BLACK;
+    return EMPTY;
+}
