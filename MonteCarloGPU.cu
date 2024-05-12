@@ -3,7 +3,7 @@
 #include "board.h"
 #include "util.h"
 
-int mcGPU_move(BoardState *state, int threads)
+extern "C" int mcGPU_move(BoardState *state, int threads)
 {
     // convert BoardState to a format that can be used by the GPU
     int board[BOARD_H * BOARD_W];
