@@ -5,6 +5,14 @@
 
 int mcGPU_move(BoardState *state, int threads)
 {
+    // pass if no valid moves
+    auto valid_moves = state->moves();
+    if (valid_moves.size() == 0)
+    {
+        state->apply(PASS);
+        return false;
+    }
+
     // convert BoardState to a format that can be used by the GPU
     int board[BOARD_H * BOARD_W];
     for (int x = 0; x < BOARD_W; x++)
