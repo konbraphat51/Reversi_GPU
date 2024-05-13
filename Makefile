@@ -1,11 +1,18 @@
 # (1)コンパイラ
-CC  = g++
+CC  = nvc++
 # (2)コンパイルオプション
 CFLAGS    =
 # (3)実行ファイル名
 TARGET  = Reversi
 # (4)コンパイル対象のソースコード
-SRCS    =  main.cpp minimax.h board.h util.h ucb.h uct.h basic.h MonteCarloGPU.cuh MonteCarloGPU.cu
+SRCS    =  main.cpp
+SRCS 	+= minimax.h
+SRCS 	+= board.h
+SRCS 	+= ucb.h
+SRCS 	+= uct.h
+SRCS 	+= basic.h
+SRCS 	+= MonteCarloGPU.cuh
+SRCS 	+= MonteCarloGPU.cu
 # (5)オブジェクトファイル名
 OBJS    = $(SRCS:.cpp=.o)
 
