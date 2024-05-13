@@ -30,7 +30,7 @@ RUN wget  https://developer.download.nvidia.com/hpc-sdk/24.3/nvhpc_2024_243_Linu
 RUN tar xpzf nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz
 RUN nvhpc_2024_243_Linux_x86_64_cuda_multi/install
 RUN rm -rf nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz nvhpc_2024_243_Linux_x86_64_cuda_multi
-RUN echo "/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/compilers/bin/" >> /root/.bashrc
+RUN echo "export PATH=\$PATH:/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/compilers/bin/" >> /root/.bashrc
 
 # ソースコードのコピー
 COPY . /app/source
