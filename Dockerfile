@@ -36,4 +36,4 @@ RUN echo "export PATH=\$PATH:/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/compilers/bin
 COPY . /app/source
 
 # ビルド作業ディレクトリの作成と移動
-WORKDIR /app/build
+WORKDIR /app/source
