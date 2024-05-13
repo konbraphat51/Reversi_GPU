@@ -1,40 +1,29 @@
-# (1)コンパイラ
-CC  = nvc++
-# (2)コンパイルオプション
-CFLAGS    =
-# (3)実行ファイル名
-TARGET  = Reversi
-# (4)コンパイル対象のソースコード
-SRCS    =  main.cpp
-SRCS 	+= minimax.h
-SRCS 	+= board.h
-SRCS 	+= ucb.h
-SRCS 	+= uct.h
-SRCS 	+= basic.h
-SRCS 	+= MonteCarloGPU.cuh
-SRCS 	+= MonteCarloGPU.cu
-# (5)オブジェクトファイル名
-OBJS    = $(SRCS:.cpp=.o)
+PROG := TARGET_NAME
+SRCS := $(wildcard *.cpp) $(wildcard *.h) $(wildcard *.cu) $(wildcard *.cuh)
+OBJS := $(SRCS:%.cpp=%.o) # %マクロを用いて置換 SRC配列を元に"<ファイル名>.o"の配列を作る。 中間オブジェクトファイル用。
+DEPS := $(SRCS:%.cpp=%.d) # %マクロを用いて置換 SRC配列を元に"<ファイル名>.d"の配列を作る。 依存ファイル用。
 
-# (6)インクルードファイルのあるディレクトリパス
-INCDIR  = 
+# 各種設定を変数として定義
+CC := nvc++
+CCFLAGS := 
+INCLUDEPATH := -I/usr/local/include
+LIBPATH := -L/usr/local/lib
+LIBS := -framework Cocoa -framework OpenGL -lz -ljpeg -lpng
 
-# (7)ライブラリファイルのあるディレクトリパス
-LIBDIR  = 
+# これが主レシピ
+all: $(DEPENDS) $(PROG)
 
-# (8)追加するライブラリファイル
-LIBS    = 
+# リンク
+$(PROG): $(OBJS)
+	$(CC) $(CCFLAGS) -o $@ $^ $(LIBPATH) $(LIBS)
 
-# (9)ターゲットファイル生成
-$(TARGET): $(OBJS)
-    $(CC) -o $@ $^ $(LIBDIR) $(LIBS)
+# コンパイル
+.cpp.o:
+	$(CC) $(CCFLAGS) $(INCLUDEPATH) -MMD -MP -MF $(<:%.cpp=%.d) -c $< -o $(<:%.cpp=%.o)
 
-# (10)オブジェクトファイル生成
-$(OBJS): $(SRCS)
-    $(CC) $(CFLAGS) $(INCDIR) -c $(SRCS)
-
-# (11)"make all"で make cleanとmakeを同時に実施。
-all: clean $(OBJS) $(TARGET)
-# (12).oファイル、実行ファイル、.dファイルを削除
+# "make clean"でターゲットと中間ファイルを消去できるようにする
+.PHONY: clean
 clean:
-    -rm -f $(OBJS) $(TARGET) *.d
+	$(RM) $(PROG) $(OBJS) $(DEPS)
+
+-include $(DEPS) # include "ファイル名" でそのファイルの内容をここにコピペしたのと同じ効果を得られる
