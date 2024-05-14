@@ -1,6 +1,12 @@
 #include "board.h"
 #include "util.h"
 
+struct Moves
+{
+    int *moves;
+    int length;
+};
+
 extern "C" int mcGPU_move(BoardState *state, int threads)
 {
     // convert BoardState to a format that can be used by the GPU
@@ -129,12 +135,6 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
         movesWins[firstMoveIndex]++;
     }
 }
-
-struct Moves
-{
-    int *moves;
-    int length;
-};
 
 __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 {
