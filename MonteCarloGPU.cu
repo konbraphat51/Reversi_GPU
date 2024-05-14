@@ -1,5 +1,3 @@
-#include <cuda.h>
-
 #include "board.h"
 #include "util.h"
 
