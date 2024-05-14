@@ -12,7 +12,7 @@
 #include "basic.h"
 #include "uct.h"
 #include "ucb.h"
-#include "MonteCarloGPU.cuh"
+#include "MonteCarloGPU.cu"
 
 using namespace std;
 using namespace std::placeholders;

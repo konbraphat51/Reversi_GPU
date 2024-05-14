@@ -1,6 +1,5 @@
 #include <cuda.h>
 
-#include "MonteCarloGPU.cuh"
 #include "board.h"
 #include "util.h"
 
