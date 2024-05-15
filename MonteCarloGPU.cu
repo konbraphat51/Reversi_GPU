@@ -8,6 +8,35 @@ struct Moves
     int length;
 };
 
+template <typename T>
+__device__ void map_adjacent(const int y, const int x, const T f)
+{
+
+    if (y > 0)
+    {
+        f(y - 1, x);
+        if (x > 0)
+            f(y - 1, x - 1);
+        if (x < (BOARD_W - 1))
+            f(y - 1, x + 1);
+    }
+
+    if (y < (BOARD_H - 1))
+    {
+        f(y + 1, x);
+        if (x > 0)
+            f(y + 1, x - 1);
+        if (x < (BOARD_W - 1))
+            f(y + 1, x + 1);
+    }
+
+    if (x > 0)
+        f(y, x - 1);
+
+    if (x < (BOARD_W - 1))
+        f(y, x + 1);
+}
+
 __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 {
     int movesBuffer[BOARD_W * BOARD_H];
@@ -126,35 +155,6 @@ __device__ void apply_move(
     }
 
     active_player = OTHER(active_player);
-}
-
-template <typename T>
-__device__ void map_adjacent(const int y, const int x, const T f)
-{
-
-    if (y > 0)
-    {
-        f(y - 1, x);
-        if (x > 0)
-            f(y - 1, x - 1);
-        if (x < (BOARD_W - 1))
-            f(y - 1, x + 1);
-    }
-
-    if (y < (BOARD_H - 1))
-    {
-        f(y + 1, x);
-        if (x > 0)
-            f(y + 1, x - 1);
-        if (x < (BOARD_W - 1))
-            f(y + 1, x + 1);
-    }
-
-    if (x > 0)
-        f(y, x - 1);
-
-    if (x < (BOARD_W - 1))
-        f(y, x + 1);
 }
 
 __device__ int winner(
