@@ -55,27 +55,27 @@ EXE = run
 # Object files:
 OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/MonteCarloGPU.o $(OBJ_DIR)/basic.o $(OBJ_DIR)/board.o $(OBJ_DIR)/minimax.o $(OBJ_DIR)/ucb.o $(OBJ_DIR)/uct.o $(OBJ_DIR)/util.o
 
+SRC = main.cpp
+SRC_CUDA = MonteCarloGPU.cu
+HEADER = basic.h board.h minimax.h ucb.h uct.h util.h
+HEADER_CUDA = MonteCarloGPU.cuh
+OBJ = $(OBJ_DIR)/main.o
+OBJ_CUDA = $(OBJ_DIR)/MonteCarloGPU.o
+
 ##########################################################
 
 ## Compile ##
 
 # Link c++ and CUDA compiled object files to target executable:
-$(EXE) : $(OBJS)
+$(EXE) : $(OBJ) $(OBJ_CUDA) $(HEADER) $(HEADER_CUDA)
 	$(CC) $(CC_FLAGS) $(OBJS) -o $@  $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS) $(CUDA_INC_DIR)
 
 # Compile main .cpp file to object files:
-$(OBJ_DIR)/%.o : %.cpp
-	$(CC) $(CC_FLAGS) -c $< -o $@
-
-# Compile C++ source files to object files:
-$(OBJ_DIR)/%.o : %.h
+$(OBJ_DIR)/%.o : SRC
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # Compile CUDA source files to object files:
-$(OBJ_DIR)/%.o : %.cu
-	$(NVCC) $(NVCC_FLAGS) -c $< -o $@ $(NVCC_LIBS)
-
-$(OBJ_DIR)/%.o : %.cuh
+$(OBJ_DIR)/%.o : SRC_CUDA
 	$(NVCC) $(NVCC_FLAGS) -c $< -o $@ $(NVCC_LIBS)
 
 # Clean objects in object directory.
