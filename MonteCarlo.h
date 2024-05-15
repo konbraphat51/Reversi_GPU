@@ -100,14 +100,6 @@ namespace MonteCarlo
         }
         moves->length = bufferIndex;
 
-        // show result
-        std::cout << "Valid moves: ";
-        for (int i = 0; i < moves->length; i++)
-        {
-            std::cout << moves->moves[i] << " ";
-        }
-        std::cout << std::endl;
-
         return moves;
     }
 
@@ -280,14 +272,7 @@ namespace MonteCarlo
 
         // pass if no valid moves
         Moves *validMoves = get_valid_moves(board, activePlayer);
-        // show result
-        std::cout << "Valid moves: ";
-        for (int i = 0; i < validMoves->length; i++)
-        {
-            std::cout << validMoves->moves[i] << " ";
-        }
-        std::cout << std::endl;
-        if (validMoves->length >= 0)
+        if (validMoves->length == 0)
         {
             state->apply(PASS);
             return false;
