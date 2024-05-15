@@ -68,7 +68,7 @@ $(OBJ_DIR)/%.o : %.cpp
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # Compile C++ source files to object files:
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp include/%.h
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp $(INC_DIR)/%.h
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # Compile CUDA source files to object files:
