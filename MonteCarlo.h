@@ -250,7 +250,7 @@ namespace MonteCarlo
         }
     }
 
-    extern "C" int mcGPU_move(BoardState *state, int threads)
+    extern "C" int mc_move(BoardState *state, int threads)
     {
         printf("mcGPU_move called\n");
 
