@@ -63,11 +63,11 @@ $(EXE) : $(OBJ) $(OBJ_CUDA) $(HEADER) $(HEADER_CUDA)
 	$(CC) $(CC_FLAGS) $(OBJ) $(OBJ_CUDA) -o $@  $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS) $(CUDA_INC_DIR)
 
 # Compile main .cpp file to object files:
-$(OBJ_DIR)/%.o : $(SRC)
+$(OBJ) : $(SRC)
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # Compile CUDA source files to object files:
-$(OBJ_DIR)/%.o : $(SRC_CUDA)
+$(OBJ_CUDA) : $(SRC_CUDA)
 	$(NVCC) $(NVCC_FLAGS) -c $< -o $@ $(NVCC_LIBS)
 
 # Clean objects in object directory.
