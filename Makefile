@@ -12,8 +12,6 @@ CUDA_ROOT_DIR=/usr/local/cuda
 
 # CC compiler options:
 CC=g++
-CC_FLAGS= -g -Wall
-CC_LIBS=
 
 ##########################################################
 
@@ -21,8 +19,6 @@ CC_LIBS=
 
 # NVCC compiler options:
 NVCC=nvcc
-NVCC_FLAGS=
-NVCC_LIBS=
 
 # CUDA library directory:
 CUDA_LIB_DIR= -L$(CUDA_ROOT_DIR)/lib64
@@ -60,11 +56,11 @@ OBJ_CUDA = $(OBJ_DIR)/MonteCarloGPU.o
 
 # Link c++ and CUDA compiled object files to target executable:
 $(EXE) : $(OBJ) $(OBJ_CUDA) $(HEADER) $(HEADER_CUDA)
-	$(CC) $(CC_FLAGS) $(OBJ) $(OBJ_CUDA) -o $@  $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS) $(CUDA_INC_DIR)
+	$(CC) -g $(OBJ) $(OBJ_CUDA) -o $@  $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS) $(CUDA_INC_DIR)
 
 # Compile main .cpp file to object files:
 $(OBJ) : $(SRC)
-	$(CC) $(CC_FLAGS) -c $< -o $@
+	$(CC) -c $< -o $@
 
 # Compile CUDA source files to object files:
 $(OBJ_CUDA) : $(SRC_CUDA)
