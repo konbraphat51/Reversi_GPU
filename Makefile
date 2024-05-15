@@ -36,14 +36,8 @@ CUDA_LINK_LIBS= -lcudart
 
 ## Project file structure ##
 
-# Source file directory:
-SRC_DIR = ./
-
 # Object file directory:
 OBJ_DIR = bin
-
-# Include header file diretory:
-INC_DIR = ./
 
 ##########################################################
 
