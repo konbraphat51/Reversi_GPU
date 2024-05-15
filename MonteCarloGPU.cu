@@ -9,7 +9,7 @@ struct Moves
 };
 
 template <typename T>
-__device__ void _map_adjacent(const int y, const int x, const T f)
+__host__ __device__ void _map_adjacent(const int y, const int x, const T f)
 {
 
     if (y > 0)
