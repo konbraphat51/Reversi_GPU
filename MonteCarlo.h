@@ -297,15 +297,6 @@ namespace MonteCarlo
 
         // pass if no valid moves
         Moves *validMoves = get_valid_moves(board, activePlayer);
-
-        //>>DEBUG
-        printf("Valid moves: %d\n", validMoves->length);
-        for (int i = 0; i < validMoves->length; i++)
-        {
-            printf("%d ", validMoves->moves[i]);
-        }
-        //<<DEBUG
-
         if (validMoves->length == 0)
         {
             state->apply(PASS);
@@ -344,7 +335,7 @@ namespace MonteCarlo
         free(d_movesCount);
         free(d_movesWins);
 
-        // print result
+        // DEBUG: print result
         for (int cnt = 0; cnt < validMoves->length; cnt++)
         {
             printf("Move %d: %f\n", validMoves->moves[cnt], winRate[cnt]);
