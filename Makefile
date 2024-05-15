@@ -52,6 +52,7 @@ INC_DIR = ./
 # Target executable name:
 EXE = run
 
+# Source files:
 SRC = main.cpp
 SRC_CUDA = MonteCarloGPU.cu
 HEADER = basic.h board.h minimax.h ucb.h uct.h util.h
