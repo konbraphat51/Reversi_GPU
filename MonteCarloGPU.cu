@@ -2,135 +2,6 @@
 #include "board.h"
 #include "util.h"
 
-extern "C" int mcGPU_move(BoardState *state, int threads)
-{
-    // convert BoardState to a format that can be used by the GPU
-    int board[BOARD_H * BOARD_W];
-    for (int x = 0; x < BOARD_W; x++)
-    {
-        for (int y = 0; y < BOARD_H; y++)
-        {
-            board[BOARD_W * y + x] = state->board[x][y];
-        }
-    }
-    int activePlayer = state->active_player;
-    bool passed = state->passed;
-
-    // pass if no valid moves
-    Moves *validMoves = get_valid_moves(board, activePlayer);
-    if (validMoves->length == 0)
-    {
-        state->apply(PASS);
-        return false;
-    }
-
-    // set up GPU
-    int *d_board;
-    int *d_movesCount;
-    int *d_movesWins;
-
-    cudaMalloc(&d_board, BOARD_H * BOARD_W * sizeof(int));
-    cudaMalloc(&d_movesCount, validMoves->length * sizeof(int));
-    cudaMalloc(&d_movesWins, validMoves->length * sizeof(int));
-
-    cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemset(d_movesCount, 0, validMoves->length * sizeof(int));
-    cudaMemset(d_movesWins, 0, validMoves->length * sizeof(int));
-
-    dim3 dimBlock(threads);
-    dim3 dimGrid(1);
-
-    mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_movesCount, d_movesWins);
-
-    // get result
-    double *winRate = (double *)malloc(validMoves->length * sizeof(double));
-    for (int cnt = 0; cnt < validMoves->length; cnt++)
-    {
-        winRate[cnt] = (double)d_movesWins[cnt] / d_movesCount[cnt];
-    }
-
-    // free memory
-    cudaFree(d_board);
-    cudaFree(d_movesCount);
-    cudaFree(d_movesWins);
-
-    // find best move
-    int bestMove = -1;
-    double bestWinRate = -1;
-    for (int cnt = 0; cnt < validMoves->length; cnt++)
-    {
-        if (winRate[cnt] > bestWinRate)
-        {
-            bestWinRate = winRate[cnt];
-            bestMove = validMoves->moves[cnt];
-        }
-    }
-
-    // apply best move
-    Point p = Point(bestMove % BOARD_W, bestMove / BOARD_W);
-    state->apply(p);
-
-    return true;
-}
-
-__global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
-{
-    int threadId = blockIdx.x * blockDim.x + threadIdx.x;
-    int seed = threadId;
-
-    // copy board
-    int boardCopy[BOARD_H * BOARD_W];
-    for (int x = 0; x < BOARD_W; x++)
-    {
-        for (int y = 0; y < BOARD_H; y++)
-        {
-            boardCopy[BOARD_W * y + x] = board[BOARD_W * y + x];
-        }
-    }
-
-    // monte carlo simulation
-    bool first = true;
-    int firstMoveIndex = -1;
-    for (;;)
-    {
-        Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
-
-        if (validMoves->length == 0)
-        {
-            if (passed)
-            {
-                // both passed, game is over
-                break;
-            }
-            else
-            {
-                // first pass
-                passed = true;
-            }
-        }
-        else
-        {
-            // choose a random move
-            int moveIndex = ComputeRandom(seed, validMoves->length);
-            int move = validMoves->moves[moveIndex];
-            apply_move(move, boardCopy, activePlayer, passed);
-
-            if (first)
-            {
-                first = false;
-                firstMoveIndex = moveIndex;
-            }
-        }
-    }
-
-    // report result
-    movesCount[firstMoveIndex]++;
-    if (winner(boardCopy) == activePlayer)
-    {
-        movesWins[firstMoveIndex]++;
-    }
-}
-
 struct Moves
 {
     int *moves;
@@ -318,4 +189,133 @@ __device__ __host__ int ComputeRandom(int &seed, int maxExclusive)
     seed++;
 
     return raw % maxExclusive;
+}
+
+__global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
+{
+    int threadId = blockIdx.x * blockDim.x + threadIdx.x;
+    int seed = threadId;
+
+    // copy board
+    int boardCopy[BOARD_H * BOARD_W];
+    for (int x = 0; x < BOARD_W; x++)
+    {
+        for (int y = 0; y < BOARD_H; y++)
+        {
+            boardCopy[BOARD_W * y + x] = board[BOARD_W * y + x];
+        }
+    }
+
+    // monte carlo simulation
+    bool first = true;
+    int firstMoveIndex = -1;
+    for (;;)
+    {
+        Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
+
+        if (validMoves->length == 0)
+        {
+            if (passed)
+            {
+                // both passed, game is over
+                break;
+            }
+            else
+            {
+                // first pass
+                passed = true;
+            }
+        }
+        else
+        {
+            // choose a random move
+            int moveIndex = ComputeRandom(seed, validMoves->length);
+            int move = validMoves->moves[moveIndex];
+            apply_move(move, boardCopy, activePlayer, passed);
+
+            if (first)
+            {
+                first = false;
+                firstMoveIndex = moveIndex;
+            }
+        }
+    }
+
+    // report result
+    movesCount[firstMoveIndex]++;
+    if (winner(boardCopy) == activePlayer)
+    {
+        movesWins[firstMoveIndex]++;
+    }
+}
+
+extern "C" int mcGPU_move(BoardState *state, int threads)
+{
+    // convert BoardState to a format that can be used by the GPU
+    int board[BOARD_H * BOARD_W];
+    for (int x = 0; x < BOARD_W; x++)
+    {
+        for (int y = 0; y < BOARD_H; y++)
+        {
+            board[BOARD_W * y + x] = state->board[x][y];
+        }
+    }
+    int activePlayer = state->active_player;
+    bool passed = state->passed;
+
+    // pass if no valid moves
+    Moves *validMoves = get_valid_moves(board, activePlayer);
+    if (validMoves->length == 0)
+    {
+        state->apply(PASS);
+        return false;
+    }
+
+    // set up GPU
+    int *d_board;
+    int *d_movesCount;
+    int *d_movesWins;
+
+    cudaMalloc(&d_board, BOARD_H * BOARD_W * sizeof(int));
+    cudaMalloc(&d_movesCount, validMoves->length * sizeof(int));
+    cudaMalloc(&d_movesWins, validMoves->length * sizeof(int));
+
+    cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemset(d_movesCount, 0, validMoves->length * sizeof(int));
+    cudaMemset(d_movesWins, 0, validMoves->length * sizeof(int));
+
+    dim3 dimBlock(threads);
+    dim3 dimGrid(1);
+
+    mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_movesCount, d_movesWins);
+
+    // get result
+    double *winRate = (double *)malloc(validMoves->length * sizeof(double));
+    for (int cnt = 0; cnt < validMoves->length; cnt++)
+    {
+        winRate[cnt] = (double)d_movesWins[cnt] / d_movesCount[cnt];
+    }
+
+    // free memory
+    cudaFree(d_board);
+    cudaFree(d_movesCount);
+    cudaFree(d_movesWins);
+
+    // find best move
+    int bestMove = -1;
+    double bestWinRate = -1;
+    for (int cnt = 0; cnt < validMoves->length; cnt++)
+    {
+        if (winRate[cnt] > bestWinRate)
+        {
+            bestWinRate = winRate[cnt];
+            bestMove = validMoves->moves[cnt];
+        }
+    }
+
+    // apply best move
+    Point p = Point(bestMove % BOARD_W, bestMove / BOARD_W);
+    state->apply(p);
+
+    return true;
 }
