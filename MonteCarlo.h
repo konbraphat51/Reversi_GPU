@@ -186,27 +186,29 @@ namespace MonteCarlo
     }
 
     int winner(
-        const int *board)
+        const int *board,
+        const int me,
+        const int other)
     {
-        int w_score = 0;
-        int b_score = 0;
+        int my_score = 0;
+        int other_score = 0;
 
         for (int i = 0; i < BOARD_H; ++i)
         {
             for (int j = 0; j < BOARD_W; ++j)
             {
-                if (board[i * BOARD_W + j] == WHITE)
-                    w_score++;
-                else if (board[i * BOARD_W + j] == BLACK)
-                    b_score++;
+                if (board[i * BOARD_W + j] == me)
+                    my_score++;
+                else if (board[i * BOARD_W + j] == other)
+                    other_score++;
             }
         }
 
-        if (w_score > b_score)
-            return WHITE;
-        if (w_score < b_score)
-            return BLACK;
-        return EMPTY;
+        if (my_score > other_score)
+            return me;
+        if (my_score < other_score)
+            return other;
+        return -1;
     }
 
     int ComputeRandom(int &seed, int maxExclusive)
@@ -221,6 +223,9 @@ namespace MonteCarlo
 
     void mcGPU_kernel(int seed, int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
     {
+        int me = activePlayer;
+        int other = OTHER(me);
+
         // copy board
         int boardCopy[BOARD_H * BOARD_W];
         for (int x = 0; x < BOARD_W; x++)
@@ -268,7 +273,7 @@ namespace MonteCarlo
 
         // report result
         movesCount[firstMoveIndex]++;
-        if (winner(boardCopy) == activePlayer)
+        if (winner(boardCopy, me, other) == me)
         {
             movesWins[firstMoveIndex]++;
         }
