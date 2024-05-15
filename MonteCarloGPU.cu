@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "MonteCarloGPU.cuh"
 #include "board.h"
 #include "util.h"
@@ -253,6 +254,8 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
 
 extern "C" int mcGPU_move(BoardState *state, int threads)
 {
+    printf("mcGPU_move called\n");
+
     // convert BoardState to a format that can be used by the GPU
     int board[BOARD_H * BOARD_W];
     for (int x = 0; x < BOARD_W; x++)
@@ -288,6 +291,8 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
 
     dim3 dimBlock(threads);
     dim3 dimGrid(1);
+
+    printf("Launching kernel \n");
 
     mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_movesCount, d_movesWins);
 
