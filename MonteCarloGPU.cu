@@ -9,7 +9,7 @@ struct Moves
 };
 
 template <typename T>
-__device__ void map_adjacent(const int y, const int x, const T f)
+__device__ void _map_adjacent(const int y, const int x, const T f)
 {
 
     if (y > 0)
@@ -83,7 +83,7 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
                     }
                 };
 
-                map_adjacent(y, x, f);
+                _map_adjacent(y, x, f);
             }
         }
     }
@@ -151,7 +151,7 @@ __device__ void apply_move(
             }
         };
 
-        map_adjacent(move / BOARD_W, move % BOARD_W, f);
+        _map_adjacent(move / BOARD_W, move % BOARD_W, f);
     }
 
     active_player = OTHER(active_player);
