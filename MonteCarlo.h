@@ -276,12 +276,6 @@ namespace MonteCarlo
 
         // pass if no valid moves
         Moves *validMoves = get_valid_moves(board, activePlayer);
-        if (validMoves->length >= 0)
-        {
-            state->apply(PASS);
-            return false;
-        }
-
         // show result
         std::cout << "Valid moves: ";
         for (int i = 0; i < validMoves->length; i++)
@@ -289,6 +283,11 @@ namespace MonteCarlo
             std::cout << validMoves->moves[i] << " ";
         }
         std::cout << std::endl;
+        if (validMoves->length >= 0)
+        {
+            state->apply(PASS);
+            return false;
+        }
 
         // set up GPU
         int *d_board = (int *)malloc(BOARD_H * BOARD_W * sizeof(int));
