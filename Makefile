@@ -53,7 +53,7 @@ INC_DIR = ./
 EXE = run
 
 # Object files:
-OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/cuda_kernel.o $(OBJ_DIR)/basic.o $(OBJ_DIR)/board.o $(OBJ_DIR)/minimax.o $(OBJ_DIR)/ucb.o $(OBJ_DIR)/uct.o $(OBJ_DIR)/util.o
+OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/MonteCarloGPU.o $(OBJ_DIR)/basic.o $(OBJ_DIR)/board.o $(OBJ_DIR)/minimax.o $(OBJ_DIR)/ucb.o $(OBJ_DIR)/uct.o $(OBJ_DIR)/util.o
 
 ##########################################################
 
