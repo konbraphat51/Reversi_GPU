@@ -32,6 +32,10 @@ RUN nvhpc_2024_243_Linux_x86_64_cuda_multi/install
 RUN rm -rf nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz nvhpc_2024_243_Linux_x86_64_cuda_multi
 RUN echo "export PATH=\$PATH:/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/compilers/bin/" >> /root/.bashrc
 
+# give path for -lcudart
+RUN ln -s /usr/local/cuda/lib64/libcudart.so.11.0 /usr/local/cuda/lib64/libcudart.so
+RUN echo "export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib64/libcudart.so" >> /root/.bashrc
+
 # ソースコードのコピー
 COPY . /app/source
 
