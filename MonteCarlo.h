@@ -93,12 +93,32 @@ namespace MonteCarlo
         }
 
         Moves *moves = new Moves();
+
+        // copy array
         moves->moves = new int[bufferIndex];
-        for (int i = 0; i < bufferIndex; i++)
+        int arrayIndex = 0;
+        for (int bufferCnt = 0; bufferCnt < bufferIndex; bufferCnt++)
         {
-            moves->moves[i] = movesBuffer[i];
+            int thisMove = movesBuffer[bufferCnt];
+
+            // avoid duplication
+            bool duplicate = false;
+            for (int i = 0; i < arrayIndex; i++)
+            {
+                if (moves->moves[i] == thisMove)
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (!duplicate)
+            {
+                moves->moves[arrayIndex] = thisMove;
+                arrayIndex++;
+            }
         }
-        moves->length = bufferIndex;
+        moves->length = arrayIndex;
 
         return moves;
     }
