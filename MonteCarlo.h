@@ -96,14 +96,6 @@ namespace MonteCarlo
         moves->moves = movesBuffer;
         moves->length = bufferIndex;
 
-        // show result
-        std::cout << "Valid moves: ";
-        for (int i = 0; i < bufferIndex; i++)
-        {
-            std::cout << movesBuffer[i] << " ";
-        }
-        std::cout << std::endl;
-
         return moves;
     }
 
@@ -281,6 +273,14 @@ namespace MonteCarlo
             state->apply(PASS);
             return false;
         }
+
+        // show result
+        std::cout << "Valid moves: ";
+        for (int i = 0; i < validMoves->length; i++)
+        {
+            std::cout << validMoves->moves[i] << " ";
+        }
+        std::cout << std::endl;
 
         // set up GPU
         int *d_board = (int *)malloc(BOARD_H * BOARD_W * sizeof(int));
