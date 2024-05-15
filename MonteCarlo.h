@@ -96,6 +96,14 @@ namespace MonteCarlo
         moves->moves = movesBuffer;
         moves->length = bufferIndex;
 
+        // show result
+        std::cout << "Valid moves: ";
+        for (int i = 0; i < bufferIndex; i++)
+        {
+            std::cout << movesBuffer[i] << " ";
+        }
+        std::cout << std::endl;
+
         return moves;
     }
 
