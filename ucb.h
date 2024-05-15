@@ -5,6 +5,7 @@
 
 #include "board.h"
 #include "util.h"
+#include "basic.h"
 
 int ucb1_move(BoardState *state, int n_trials)
 {
