@@ -93,7 +93,7 @@ namespace MonteCarlo
         }
 
         Moves *moves = new Moves();
-        moves->moves = malloc(bufferIndex * sizeof(int));
+        moves->moves = new int[bufferIndex];
         for (int i = 0; i < bufferIndex; i++)
         {
             moves->moves[i] = movesBuffer[i];
