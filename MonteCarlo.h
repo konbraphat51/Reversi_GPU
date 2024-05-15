@@ -275,17 +275,18 @@ namespace MonteCarlo
         }
 
         // set up GPU
-        int *d_board;
-        int *d_movesCount;
-        int *d_movesWins;
-
         int *d_board = (int *)malloc(BOARD_H * BOARD_W * sizeof(int));
         int *d_movesCount = (int *)malloc(validMoves->length * sizeof(int));
         int *d_movesWins = (int *)malloc(validMoves->length * sizeof(int));
 
-        memcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int));
-        memset(d_movesCount, 0, validMoves->length * sizeof(int));
-        memset(d_movesWins, 0, validMoves->length * sizeof(int));
+        // memcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int));
+        for (int x = 0; x < BOARD_W; x++)
+        {
+            for (int y = 0; y < BOARD_H; y++)
+            {
+                d_board[BOARD_W * y + x] = board[BOARD_W * y + x];
+            }
+        }
 
         printf("Launching kernel \n");
 
