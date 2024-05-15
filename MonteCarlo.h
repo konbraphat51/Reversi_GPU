@@ -306,6 +306,12 @@ namespace MonteCarlo
         free(d_movesCount);
         free(d_movesWins);
 
+        // print result
+        for (int cnt = 0; cnt < validMoves->length; cnt++)
+        {
+            printf("Move %d: %f\n", validMoves->moves[cnt], winRate[cnt]);
+        }
+
         // find best move
         int bestMove = -1;
         double bestWinRate = -1;
