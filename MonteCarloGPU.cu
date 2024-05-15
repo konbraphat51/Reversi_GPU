@@ -92,8 +92,32 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
     }
 
     Moves *moves = new Moves();
-    moves->moves = movesBuffer;
-    moves->length = bufferIndex;
+
+    // copy array
+    moves->moves = (int *)malloc(bufferIndex * sizeof(int)
+    int arrayIndex = 0;
+    for (int bufferCnt = 0; bufferCnt < bufferIndex; bufferCnt++)
+    {
+        int thisMove = movesBuffer[bufferCnt];
+
+        // avoid duplication
+        bool duplicate = false;
+        for (int i = 0; i < arrayIndex; i++)
+        {
+            if (moves->moves[i] == thisMove)
+            {
+                duplicate = true;
+                break;
+            }
+        }
+
+        if (!duplicate)
+        {
+            moves->moves[arrayIndex] = thisMove;
+            arrayIndex++;
+        }
+    }
+    moves->length = arrayIndex;
 
     return moves;
 }
