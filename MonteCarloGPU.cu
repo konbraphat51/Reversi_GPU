@@ -1,3 +1,5 @@
+#pragma once
+
 #include "MonteCarloGPU.cuh"
 #include "board.h"
 #include "util.h"
