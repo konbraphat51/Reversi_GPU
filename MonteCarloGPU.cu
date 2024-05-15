@@ -161,27 +161,29 @@ __device__ void apply_move(
 }
 
 __device__ int winner(
-    const int *board)
+    const int *board,
+    const int me,
+    const int other)
 {
-    int w_score = 0;
-    int b_score = 0;
+    int my_score = 0;
+    int other_score = 0;
 
     for (int i = 0; i < BOARD_H; ++i)
     {
         for (int j = 0; j < BOARD_W; ++j)
         {
-            if (board[i * BOARD_W + j] == WHITE)
-                w_score++;
-            else if (board[i * BOARD_W + j] == BLACK)
-                b_score++;
+            if (board[i * BOARD_W + j] == me)
+                my_score++;
+            else if (board[i * BOARD_W + j] == other)
+                other_score++;
         }
     }
 
-    if (w_score > b_score)
-        return WHITE;
-    if (w_score < b_score)
-        return BLACK;
-    return EMPTY;
+    if (my_score > other_score)
+        return me;
+    if (my_score < other_score)
+        return other;
+    return -1;
 }
 
 __device__ __host__ int ComputeRandom(int &seed, int maxExclusive)
@@ -198,6 +200,9 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
 {
     int threadId = blockIdx.x * blockDim.x + threadIdx.x;
     int seed = threadId;
+
+    int me = activePlayer;
+    int other = OTHER(activePlayer);
 
     // copy board
     int boardCopy[BOARD_H * BOARD_W];
@@ -246,7 +251,7 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
 
     // report result
     movesCount[firstMoveIndex]++;
-    if (winner(boardCopy) == activePlayer)
+    if (winner(boardCopy, me, other) == me)
     {
         movesWins[firstMoveIndex]++;
     }
