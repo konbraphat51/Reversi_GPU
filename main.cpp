@@ -51,10 +51,10 @@ int main(int argc, char **argv)
 {
   srand(10101010);
 
-  int p1_strategy = 17;
-  int p2_strategy = 9;
+  int p1_strategy = 1;
+  int p2_strategy = 18;
   int rounds = 1;
-  bool print_states = false;
+  bool print_states = true;
 
   if (argc > 1)
     p1_strategy = stoi(argv[1]);
