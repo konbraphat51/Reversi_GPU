@@ -195,10 +195,8 @@ namespace MonteCarlo
         return raw % maxExclusive;
     }
 
-    void mcGPU_kernel(int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
+    void mcGPU_kernel(int seed, int *board, int activePlayer, bool passed, int *movesCount, int *movesWins)
     {
-        int seed = 0;
-
         // copy board
         int boardCopy[BOARD_H * BOARD_W];
         for (int x = 0; x < BOARD_W; x++)
@@ -291,7 +289,10 @@ namespace MonteCarlo
 
         printf("Launching kernel \n");
 
-        mcGPU_kernel(d_board, activePlayer, passed, d_movesCount, d_movesWins);
+        for (int cnt = 0; cnt < threads; cnt++)
+        {
+            mcGPU_kernel(cnt, d_board, activePlayer, passed, d_movesCount, d_movesWins);
+        }
 
         // get result
         double *winRate = (double *)malloc(validMoves->length * sizeof(double));
