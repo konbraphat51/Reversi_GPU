@@ -17,6 +17,7 @@ RUN apt-get update && \
     git \
     python3 \
     vim \
+    gdb \
     && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
