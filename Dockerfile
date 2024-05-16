@@ -27,11 +27,11 @@ RUN git config --global credential.helper store
 
 # Install NVIDA HPC SDK
 WORKDIR /installs/nvidia
-RUN wget  https://developer.download.nvidia.com/hpc-sdk/24.3/nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz
-RUN tar xpzf nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz
-RUN nvhpc_2024_243_Linux_x86_64_cuda_multi/install
-RUN rm -rf nvhpc_2024_243_Linux_x86_64_cuda_multi.tar.gz nvhpc_2024_243_Linux_x86_64_cuda_multi
-RUN echo "export PATH=\$PATH:/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/compilers/bin/" >> /root/.bashrc
+RUN wget https://developer.download.nvidia.com/hpc-sdk/22.11/nvhpc_2022_2211_Linux_x86_64_cuda_11.8.tar.gz
+RUN tar xpzf nvhpc_2022_2211_Linux_x86_64_cuda_11.8.tar.gz
+RUN nvhpc_2022_2211_Linux_x86_64_cuda_11.8/install
+RUN rm -rf nvhpc_2022_2211_Linux_x86_64_cuda_11.8.tar.gz nvhpc_2022_2211_Linux_x86_64_cuda_11.8
+RUN echo "export PATH=\$PATH:/opt/nvidia/hpc_sdk/Linux_x86_64/22.11/compilers/bin/" >> /root/.bashrc
 
 # give path for -lcudart
 RUN ln -s /usr/local/cuda/lib64/libcudart.so.11.0 /usr/local/cuda/lib64/libcudart.so
