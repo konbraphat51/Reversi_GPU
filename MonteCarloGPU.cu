@@ -116,6 +116,8 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 
     moves->length = bufferIndex;
 
+    delete movesBuffer;
+
     return moves;
 }
 
@@ -336,6 +338,7 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
             }
         }
 
+        delete validMoves->moves;
         delete validMoves;
     }
 
@@ -397,7 +400,7 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     // dim3 dimGrid(threads / threadsPerBlock, 1);
     // dim3 dimBlock(threadsPerBlock, 1, 1);
     // DEBUG
-    dim3 dimGrid(1, 1);
+    dim3 dimGrid(5, 1);
     dim3 dimBlock(32, 1, 1);
 
     printf("Launching kernel \n");
