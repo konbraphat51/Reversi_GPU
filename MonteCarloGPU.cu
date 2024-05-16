@@ -337,10 +337,10 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
     }
 
     // report result
-    movesCount[firstMoveIndex]++;
+    atomicAdd(&movesCount[firstMoveIndex], 1);
     if (winner(boardCopy, me, other) == me)
     {
-        movesWins[firstMoveIndex]++;
+        atomicAdd(&movesWins[firstMoveIndex], 1);
     }
 }
 
