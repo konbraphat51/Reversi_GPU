@@ -40,6 +40,61 @@ __host__ __device__ void _map_adjacent(const int y, const int x, const T f)
         f(y, x + 1);
 }
 
+__host__ __device__ void get_moves_adjacent(int x, int y, int *board, int activePlayer, int *movesBuffer, int &bufferIndex)
+{
+    if (y > 0)
+    {
+        update_valid_moves(x, y, x, y - 1, board, activePlayer, movesBuffer, bufferIndex);
+        if (x > 0)
+            update_valid_moves(x, y, x - 1, y - 1, board, activePlayer, movesBuffer, bufferIndex);
+        if (x < (BOARD_W - 1))
+            update_valid_moves(x, y, x + 1, y - 1, board, activePlayer, movesBuffer, bufferIndex);
+    }
+
+    if (y < (BOARD_H - 1))
+    {
+        update_valid_moves(x, y, x, y + 1, board, activePlayer, movesBuffer, bufferIndex);
+        if (x > 0)
+            update_valid_moves(x, y, x - 1, y + 1, board, activePlayer, movesBuffer, bufferIndex);
+        if (x < (BOARD_W - 1))
+            update_valid_moves(x, y, x + 1, y + 1, board, activePlayer, movesBuffer, bufferIndex);
+    }
+
+    if (x > 0)
+        update_valid_moves(x, y, x - 1, y, board, activePlayer, movesBuffer, bufferIndex);
+
+    if (x < (BOARD_W - 1))
+        update_valid_moves(x, y, x + 1, y, board, activePlayer, movesBuffer, bufferIndex);
+}
+
+__device__ __host__ void update_valid_moves(const int x, const int y, int current_x, int current_y int *board, int activePlayer, int *movesBuffer, int &bufferIndex)
+{
+    if (board[BOARD_W * current_y + current_x] == OTHER(activePlayer))
+    {
+        const int dx = current_x - x;
+        const int dy = current_y - y;
+
+        while (true)
+        {
+            current_x += dx;
+            current_y += dy;
+
+            if (!BOUNDS(current_y, current_x))
+                break;
+
+            if (board[BOARD_W * current_y + current_x] == activePlayer)
+                break;
+
+            if (board[BOARD_W * current_y + current_x] == EMPTY)
+            {
+                movesBuffer[bufferIndex] = BOARD_W * current_y + current_x;
+                bufferIndex++;
+                break;
+            }
+        }
+    }
+}
+
 __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 {
     int movesBuffer[64];
@@ -57,36 +112,7 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
         {
             if (board[BOARD_W * y + x] == activePlayer)
             {
-                auto f = [&](int _y, int _x)
-                {
-                    if (board[BOARD_W * _y + _x] == OTHER(activePlayer))
-                    {
-
-                        const int dx = _x - x;
-                        const int dy = _y - y;
-
-                        while (true)
-                        {
-                            _x += dx;
-                            _y += dy;
-
-                            if (!BOUNDS(_y, _x))
-                                break;
-
-                            if (board[BOARD_W * _y + _x] == activePlayer)
-                                break;
-
-                            if (board[BOARD_W * _y + _x] == EMPTY)
-                            {
-                                movesBuffer[bufferIndex] = BOARD_W * _y + _x;
-                                bufferIndex++;
-                                break;
-                            }
-                        }
-                    }
-                };
-
-                _map_adjacent(y, x, f);
+                get_moves_adjacent(x, y, board, activePlayer, movesBuffer, bufferIndex);
             }
         }
     }
