@@ -122,89 +122,6 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
     return moves;
 }
 
-__device__ __host__ Moves *_get_valid_moves(int *board, int activePlayer)
-{
-    int movesBuffer[64];
-    // initialize buffer with -1
-    for (int i = 0; i < BOARD_W * BOARD_H; i++)
-    {
-        movesBuffer[i] = -1;
-    }
-
-    int bufferIndex = 0;
-
-    // for (int x = 0; x < BOARD_W; x++)
-    // {
-    //     for (int y = 0; y < BOARD_H; y++)
-    //     {
-    //         if (board[BOARD_W * y + x] == activePlayer)
-    //         {
-    //             auto f = [&](int _y, int _x)
-    //             {
-    //                 if (board[BOARD_W * _y + _x] == OTHER(activePlayer))
-    //                 {
-
-    //                     const int dx = _x - x;
-    //                     const int dy = _y - y;
-
-    //                     while (true)
-    //                     {
-    //                         _x += dx;
-    //                         _y += dy;
-
-    //                         if (!BOUNDS(_y, _x))
-    //                             break;
-
-    //                         if (board[BOARD_W * _y + _x] == activePlayer)
-    //                             break;
-
-    //                         if (board[BOARD_W * _y + _x] == EMPTY)
-    //                         {
-    //                             movesBuffer[bufferIndex] = BOARD_W * _y + _x;
-    //                             bufferIndex++;
-    //                             break;
-    //                         }
-    //                     }
-    //                 }
-    //             };
-
-    //             _map_adjacent(y, x, f);
-    //         }
-    //     }
-    // }
-
-    // Moves *moves = new Moves();
-
-    // // copy array
-    // moves->moves = new int[64];
-    // int arrayIndex = 0;
-    // for (int bufferCnt = 0; bufferCnt < bufferIndex; bufferCnt++)
-    // {
-    //     int thisMove = movesBuffer[bufferCnt];
-
-    //     // avoid duplication
-    //     bool duplicate = false;
-    //     for (int i = 0; i < arrayIndex; i++)
-    //     {
-    //         if (moves->moves[i] == thisMove)
-    //         {
-    //             duplicate = true;
-    //             break;
-    //         }
-    //     }
-
-    //     if (!duplicate)
-    //     {
-    //         moves->moves[arrayIndex] = thisMove;
-    //         arrayIndex++;
-    //     }
-    // }
-    // moves->length = arrayIndex;
-
-    // return moves;
-    return new Moves();
-}
-
 __device__ void apply_move(
     const int move,
     int *board,
@@ -326,7 +243,7 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
     int firstMoveIndex = -1;
     for (;;)
     {
-        Moves *validMoves = _get_valid_moves(boardCopy, activePlayer);
+        Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
         break;
 
         if (validMoves->length == 0)
