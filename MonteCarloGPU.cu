@@ -244,7 +244,6 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
     for (;;)
     {
         Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
-        break;
 
         if (validMoves->length == 0)
         {
