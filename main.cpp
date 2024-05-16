@@ -47,67 +47,65 @@ move_func strategies[] = {
     bind(MonteCarlo::mc_move, _1, 32 * 500)      // Monte Carlo Tree Search (CPU)
 };
 
-int main(int argc, char **argv)
+void testMcGPU()
 {
-  srand(10101010);
+  int seed = 0;
 
-  int p1_strategy = 1;
-  int p2_strategy = 17;
-  int rounds = 1;
-  bool print_states = false;
+  const int round_per_agent = 100;
 
-  if (argc > 1)
-    p1_strategy = stoi(argv[1]);
-  if (argc > 2)
-    p2_strategy = stoi(argv[2]);
-  if (argc > 3)
-    rounds = stoi(argv[3]);
-  if (argc > 4)
-    print_states = string(argv[4]) != "0";
-
-  int p1_wins = 0;
-  int p2_wins = 0;
-
-  for (int i = 0; i < rounds; ++i)
+  for (int opponent = 1; opponent <= 16; opponent++)
   {
-    BoardState state;
-
-    move_func player_1 = strategies[p1_strategy]; // black
-    move_func player_2 = strategies[p2_strategy];
-
-    bool passed = false;
-    while (true)
+    int wins = 0;
+    for (int i = 0; i < round_per_agent; i++)
     {
-      if (print_states)
-      {
-        state.print();
-      }
-
-      bool pass = !player_1(&state);
-      if (pass && passed)
-      {
-        break;
-      }
-      passed = pass;
-
-      swap(player_1, player_2);
+      wins += singleGame(17, opponent) == 17;
     }
 
-    int w_score = eval_pieces(&state, WHITE);
-    int b_score = eval_pieces(&state, BLACK);
+    double win_rate = (double)wins / round_per_agent;
 
-    if (w_score > b_score)
-      p2_wins++;
-    if (w_score < b_score)
-      p1_wins++;
+    cout << "Agent " << opponent << " win rate: " << win_rate * 100 << "%" << endl;
+  }
+}
 
+int singleGame(int playerId1, int playerId2, bool print_result = false)
+{
+  BoardState state;
+
+  move_func player_1 = strategies[playerId1]; // black
+  move_func player_2 = strategies[playerId2];
+
+  bool passed = false;
+  while (true)
+  {
+    bool pass = !player_1(&state);
+    if (pass && passed)
+    {
+      break;
+    }
+    passed = pass;
+
+    swap(player_1, player_2);
+  }
+
+  int w_score = eval_pieces(&state, WHITE);
+  int b_score = eval_pieces(&state, BLACK);
+
+  if (print_result)
+  {
     cout << "Player 1 score: " << b_score << endl;
     cout << "Player 2 score: " << w_score << endl;
   }
 
-  if (rounds > 1)
-  {
-    cout << "Player 1 wins: " << p1_wins << endl;
-    cout << "Player 2 wins: " << p2_wins << endl;
-  }
+  // return winner
+  if (w_score > b_score)
+    return 2;
+  else if (w_score < b_score)
+    return 1;
+  else
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+  testMcGPU();
 }
