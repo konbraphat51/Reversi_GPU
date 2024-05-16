@@ -11,33 +11,32 @@ struct Moves
     int length;
 };
 
-template <typename T>
-__host__ __device__ void _map_adjacent(const int y, const int x, const T f)
+__device__ __host__ void update_valid_moves(const int x, const int y, int current_x, int current_y, int *board, int activePlayer, int *movesBuffer, int &bufferIndex)
 {
-
-    if (y > 0)
+    if (board[BOARD_W * current_y + current_x] == OTHER(activePlayer))
     {
-        f(y - 1, x);
-        if (x > 0)
-            f(y - 1, x - 1);
-        if (x < (BOARD_W - 1))
-            f(y - 1, x + 1);
+        const int dx = current_x - x;
+        const int dy = current_y - y;
+
+        while (true)
+        {
+            current_x += dx;
+            current_y += dy;
+
+            if (!BOUNDS(current_y, current_x))
+                break;
+
+            if (board[BOARD_W * current_y + current_x] == activePlayer)
+                break;
+
+            if (board[BOARD_W * current_y + current_x] == EMPTY)
+            {
+                movesBuffer[bufferIndex] = BOARD_W * current_y + current_x;
+                bufferIndex++;
+                break;
+            }
+        }
     }
-
-    if (y < (BOARD_H - 1))
-    {
-        f(y + 1, x);
-        if (x > 0)
-            f(y + 1, x - 1);
-        if (x < (BOARD_W - 1))
-            f(y + 1, x + 1);
-    }
-
-    if (x > 0)
-        f(y, x - 1);
-
-    if (x < (BOARD_W - 1))
-        f(y, x + 1);
 }
 
 __host__ __device__ void get_moves_adjacent(int x, int y, int *board, int activePlayer, int *movesBuffer, int &bufferIndex)
@@ -65,34 +64,6 @@ __host__ __device__ void get_moves_adjacent(int x, int y, int *board, int active
 
     if (x < (BOARD_W - 1))
         update_valid_moves(x, y, x + 1, y, board, activePlayer, movesBuffer, bufferIndex);
-}
-
-__device__ __host__ void update_valid_moves(const int x, const int y, int current_x, int current_y int *board, int activePlayer, int *movesBuffer, int &bufferIndex)
-{
-    if (board[BOARD_W * current_y + current_x] == OTHER(activePlayer))
-    {
-        const int dx = current_x - x;
-        const int dy = current_y - y;
-
-        while (true)
-        {
-            current_x += dx;
-            current_y += dy;
-
-            if (!BOUNDS(current_y, current_x))
-                break;
-
-            if (board[BOARD_W * current_y + current_x] == activePlayer)
-                break;
-
-            if (board[BOARD_W * current_y + current_x] == EMPTY)
-            {
-                movesBuffer[bufferIndex] = BOARD_W * current_y + current_x;
-                bufferIndex++;
-                break;
-            }
-        }
-    }
 }
 
 __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
@@ -148,36 +119,9 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
     return moves;
 }
 
-__host__ __device__ void apply_move_adjacent(int x, int y, int *board, int activePlayer, int *movesBuffer)
+__device__ __host__ void update_applying_move(const int x, const int y, int current_x, int current_y, int *board, int activePlayer)
 {
-    if (y > 0)
-    {
-        update_applying_move(x, y, x, y - 1, board, activePlayer, movesBuffer);
-        if (x > 0)
-            update_applying_move(x, y, x - 1, y - 1, board, activePlayer, movesBuffer);
-        if (x < (BOARD_W - 1))
-            update_applying_move(x, y, x + 1, y - 1, board, activePlayer, movesBuffer);
-    }
-
-    if (y < (BOARD_H - 1))
-    {
-        update_applying_move(x, y, x, y + 1, board, activePlayer, movesBuffer);
-        if (x > 0)
-            update_applying_move(x, y, x - 1, y + 1, board, activePlayer, movesBuffer);
-        if (x < (BOARD_W - 1))
-            update_applying_move(x, y, x + 1, y + 1, board, activePlayer, movesBuffer);
-    }
-
-    if (x > 0)
-        update_applying_move(x, y, x - 1, y, board, activePlayer, movesBuffer);
-
-    if (x < (BOARD_W - 1))
-        update_applying_move(x, y, x + 1, y, board, activePlayer, movesBuffer);
-}
-
-__device__ __host__ void update_applying_moves(const int x, const int y, int current_x, int current_y int *board, int activePlayer, int *movesBuffer)
-{
-    if (board[BOARD_W * current_y + current_x] == OTHER(active_player))
+    if (board[BOARD_W * current_y + current_x] == OTHER(activePlayer))
     {
 
         const int dx = current_x - x;
@@ -191,17 +135,17 @@ __device__ __host__ void update_applying_moves(const int x, const int y, int cur
             if (!BOUNDS(current_y, current_x))
                 break;
 
-            if (board[BOARD_W * current_y + current_x] == active_player)
+            if (board[BOARD_W * current_y + current_x] == activePlayer)
             {
                 while (true)
                 {
                     current_x -= dx;
                     current_y -= dy;
 
-                    if (board[BOARD_W * current_y + current_x] == active_player)
+                    if (board[BOARD_W * current_y + current_x] == activePlayer)
                         break;
 
-                    board[BOARD_W * current_y + current_x] = active_player;
+                    board[BOARD_W * current_y + current_x] = activePlayer;
                 }
                 break;
             }
@@ -212,6 +156,33 @@ __device__ __host__ void update_applying_moves(const int x, const int y, int cur
             }
         }
     }
+}
+
+__host__ __device__ void apply_move_adjacent(int x, int y, int *board, int activePlayer)
+{
+    if (y > 0)
+    {
+        update_applying_move(x, y, x, y - 1, board, activePlayer);
+        if (x > 0)
+            update_applying_move(x, y, x - 1, y - 1, board, activePlayer);
+        if (x < (BOARD_W - 1))
+            update_applying_move(x, y, x + 1, y - 1, board, activePlayer);
+    }
+
+    if (y < (BOARD_H - 1))
+    {
+        update_applying_move(x, y, x, y + 1, board, activePlayer);
+        if (x > 0)
+            update_applying_move(x, y, x - 1, y + 1, board, activePlayer);
+        if (x < (BOARD_W - 1))
+            update_applying_move(x, y, x + 1, y + 1, board, activePlayer);
+    }
+
+    if (x > 0)
+        update_applying_move(x, y, x - 1, y, board, activePlayer);
+
+    if (x < (BOARD_W - 1))
+        update_applying_move(x, y, x + 1, y, board, activePlayer);
 }
 
 __device__ void apply_move(
@@ -270,7 +241,7 @@ __device__ void apply_move(
             }
         };
 
-        apply_move_adjacent(move % BOARD_W, move / BOARD_W, board, active_player, movesBuffer);
+        apply_move_adjacent(move % BOARD_W, move / BOARD_W, board, active_player);
     }
 
     active_player = OTHER(active_player);
