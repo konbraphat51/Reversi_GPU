@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cassert>
 #include <string>
+#include <time.h>
 
 #include "board.h"
 #include "util.h"
@@ -47,6 +48,15 @@ move_func strategies[] = {
     bind(MonteCarlo::mc_move, _1, 32 * 500)      // Monte Carlo Tree Search (CPU)
 };
 
+struct MatchResult
+{
+  int player1;
+  int player2;
+  int winner;
+  double player1_time;
+  double player2_time;
+};
+
 void testMcGPU()
 {
   int seed = 0;
@@ -56,27 +66,43 @@ void testMcGPU()
   for (int opponent = 1; opponent <= 16; opponent++)
   {
     int wins = 0;
+    double time_GPU = 0;
+    double time_opponent = 0;
     for (int i = 0; i < round_per_agent; i++)
     {
-      wins += singleGame(17, opponent) == 17;
+      MatchResult result = singleGame(opponent, 17, false);
+      wins += result.winner == 1;
+      time_GPU += result.player1_time;
+      time_opponent += result.player2_time;
     }
 
     double win_rate = (double)wins / round_per_agent;
+    time_GPU /= round_per_agent;
+    time_opponent /= round_per_agent;
 
     cout << "Agent " << opponent << " win rate: " << win_rate * 100 << "%" << endl;
+    cout << "Agent " << opponent << " average time: " << time_GPU << "s" << endl;
+    cout << "Opponent average time: " << time_opponent << "s" << endl;
   }
 }
 
-int singleGame(int playerId1, int playerId2, bool print_result = false)
+MatchResult singleGame(int playerId1, int playerId2, bool print_result = false)
 {
   BoardState state;
 
   move_func player_1 = strategies[playerId1]; // black
   move_func player_2 = strategies[playerId2];
 
+  double time_w = 0;
+  int count_w = 0;
+  double time_b = 0;
+  int count_b = 0;
+
   bool passed = false;
   while (true)
   {
+    time_t start = time(0);
+
     bool pass = !player_1(&state);
     if (pass && passed)
     {
@@ -85,6 +111,19 @@ int singleGame(int playerId1, int playerId2, bool print_result = false)
     passed = pass;
 
     swap(player_1, player_2);
+
+    time_t end = time(0);
+
+    if (state.active_player == BLACK)
+    {
+      time_b += difftime(end, start);
+      count_b++;
+    }
+    else
+    {
+      time_w += difftime(end, start);
+      count_w++;
+    }
   }
 
   int w_score = eval_pieces(&state, WHITE);
@@ -97,12 +136,19 @@ int singleGame(int playerId1, int playerId2, bool print_result = false)
   }
 
   // return winner
+  int winner;
   if (w_score > b_score)
-    return 2;
+    winner = 2;
   else if (w_score < b_score)
-    return 1;
+    winner = 1;
   else
-    return 0;
+    winner = 0;
+
+  // compute average time
+  double avg_time_w = time_w / count_w;
+  double avg_time_b = time_b / count_b;
+
+  return MatchResult{playerId1, playerId2, winner, avg_time_w, avg_time_b};
 }
 
 int main(int argc, char **argv)
