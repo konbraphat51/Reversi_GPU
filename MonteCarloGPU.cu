@@ -322,8 +322,8 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     cudaMalloc((void **)&d_movesWins, validMoves->length * sizeof(int));
 
     cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_movesCount, h_movesCount, validMoves->length * sizeof(int));
-    cudaMemcpy(d_movesWins, h_movesWins, validMoves->length * sizeof(int));
+    cudaMemcpy(d_movesCount, h_movesCount, validMoves->length * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_movesWins, h_movesWins, validMoves->length * sizeof(int), cudaMemcpyHostToDevice);
 
     const int threadsPerBlock = 64;
     dim3 dimGrid(threads / threadsPerBlock, 1);
