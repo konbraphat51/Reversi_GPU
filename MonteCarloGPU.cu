@@ -42,7 +42,7 @@ __host__ __device__ void _map_adjacent(const int y, const int x, const T f)
 
 __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 {
-    int movesBuffer[BOARD_W * BOARD_H];
+    int movesBuffer[64];
     // initialize buffer with -1
     for (int i = 0; i < BOARD_W * BOARD_H; i++)
     {
@@ -94,7 +94,7 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
     Moves *moves = new Moves();
 
     // copy array
-    moves->moves = (int *)malloc(bufferIndex * sizeof(int));
+    moves->moves = new int[64];
     int arrayIndex = 0;
     for (int bufferCnt = 0; bufferCnt < bufferIndex; bufferCnt++)
     {
@@ -229,7 +229,7 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
     int other = OTHER(activePlayer);
 
     // copy board
-    int boardCopy[BOARD_H * BOARD_W];
+    int boardCopy[64];
     for (int x = 0; x < BOARD_W; x++)
     {
         for (int y = 0; y < BOARD_H; y++)
