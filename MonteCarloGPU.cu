@@ -422,7 +422,14 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     double *winRate = (double *)malloc(validMoves->length * sizeof(double));
     for (int cnt = 0; cnt < validMoves->length; cnt++)
     {
-        winRate[cnt] = (double)h_movesWins[cnt] / h_movesCount[cnt];
+        if (h_movesCount[cnt] == 0)
+        {
+            winRate[cnt] = 0;
+        }
+        else
+        {
+            winRate[cnt] = (double)h_movesWins[cnt] / h_movesCount[cnt];
+        }
         printf("Move %d: %d wins, %d total, win rate: %f\n", validMoves->moves[cnt], h_movesWins[cnt], h_movesCount[cnt], winRate[cnt]);
     }
 
