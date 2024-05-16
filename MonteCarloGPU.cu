@@ -327,17 +327,25 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
 
     printf("Kernel finished \n");
 
-    // get result
-    double *winRate = (double *)malloc(validMoves->length * sizeof(double));
-    for (int cnt = 0; cnt < validMoves->length; cnt++)
-    {
-        winRate[cnt] = (double)d_movesWins[cnt] / d_movesCount[cnt];
-    }
+    // copy results back
+    int h_movesCount[validMoves->length];
+    int h_movesWins[validMoves->length];
+    cudaMemcpy(h_movesCount, d_movesCount, validMoves->length * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_movesWins, d_movesWins, validMoves->length * sizeof(int), cudaMemcpyDeviceToHost);
 
     // free memory
     cudaFree(d_board);
     cudaFree(d_movesCount);
     cudaFree(d_movesWins);
+
+    // get result
+    printf("validMoves->length: %d\n", validMoves->length);
+    double *winRate = (double *)malloc(validMoves->length * sizeof(double));
+    for (int cnt = 0; cnt < validMoves->length; cnt++)
+    {
+        winRate[cnt] = (double)h_movesWins[cnt] / h_movesCount[cnt];
+        printf("Move %d: %d wins, %d total, win rate: %f\n", validMoves->moves[cnt], h_movesWins[cnt], h_movesCount[cnt], winRate[cnt]);
+    }
 
     // find best move
     int bestMove = -1;
