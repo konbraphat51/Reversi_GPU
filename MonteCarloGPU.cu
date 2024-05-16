@@ -396,12 +396,12 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     cudaMemcpy(d_movesCount, h_movesCount, validMoves->length * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_movesWins, h_movesWins, validMoves->length * sizeof(int), cudaMemcpyHostToDevice);
 
-    const int threadsPerBlock = 64;
-    // dim3 dimGrid(threads / threadsPerBlock, 1);
-    // dim3 dimBlock(threadsPerBlock, 1, 1);
-    // DEBUG
-    dim3 dimGrid(5, 1);
-    dim3 dimBlock(32, 1, 1);
+    const int threadsPerBlock = 32;
+    int grids = threads / threadsPerBlock;
+    if (grids == 0)
+        grids = 1;
+    dim3 dimGrid(grids, 1);
+    dim3 dimBlock(threadsPerBlock, 1, 1);
 
     mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_movesCount, d_movesWins);
 
