@@ -57,36 +57,7 @@ struct MatchResult
   double player2_time;
 };
 
-void testMcGPU()
-{
-  int seed = 0;
-
-  const int round_per_agent = 100;
-
-  for (int opponent = 1; opponent <= 16; opponent++)
-  {
-    int wins = 0;
-    double time_GPU = 0;
-    double time_opponent = 0;
-    for (int i = 0; i < round_per_agent; i++)
-    {
-      MatchResult result = singleGame(opponent, 17, false);
-      wins += result.winner == 1;
-      time_GPU += result.player1_time;
-      time_opponent += result.player2_time;
-    }
-
-    double win_rate = (double)wins / round_per_agent;
-    time_GPU /= round_per_agent;
-    time_opponent /= round_per_agent;
-
-    cout << "Agent " << opponent << " win rate: " << win_rate * 100 << "%" << endl;
-    cout << "Agent " << opponent << " average time: " << time_GPU << "s" << endl;
-    cout << "Opponent average time: " << time_opponent << "s" << endl;
-  }
-}
-
-MatchResult singleGame(int playerId1, int playerId2, bool print_result = false)
+MatchResult SingleGame(int playerId1, int playerId2, bool print_result = false)
 {
   BoardState state;
 
@@ -151,7 +122,36 @@ MatchResult singleGame(int playerId1, int playerId2, bool print_result = false)
   return MatchResult{playerId1, playerId2, winner, avg_time_w, avg_time_b};
 }
 
+void TestMcGPU()
+{
+  int seed = 0;
+
+  const int round_per_agent = 100;
+
+  for (int opponent = 1; opponent <= 16; opponent++)
+  {
+    int wins = 0;
+    double time_GPU = 0;
+    double time_opponent = 0;
+    for (int i = 0; i < round_per_agent; i++)
+    {
+      MatchResult result = SingleGame(opponent, 17, false);
+      wins += result.winner == 1;
+      time_GPU += result.player1_time;
+      time_opponent += result.player2_time;
+    }
+
+    double win_rate = (double)wins / round_per_agent;
+    time_GPU /= round_per_agent;
+    time_opponent /= round_per_agent;
+
+    cout << "Agent " << opponent << " win rate: " << win_rate * 100 << "%" << endl;
+    cout << "Agent " << opponent << " average time: " << time_GPU << "s" << endl;
+    cout << "Opponent average time: " << time_opponent << "s" << endl;
+  }
+}
+
 int main(int argc, char **argv)
 {
-  testMcGPU();
+  TestMcGPU();
 }
