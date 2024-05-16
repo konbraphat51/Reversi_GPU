@@ -352,6 +352,8 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
 
 extern "C" int mcGPU_move(BoardState *state, int threads)
 {
+    const bool DEBUG = false;
+
     // convert BoardState to a format that can be used by the GPU
     int *board = (int *)malloc(BOARD_H * BOARD_W * sizeof(int));
     for (int x = 0; x < BOARD_W; x++)
@@ -414,7 +416,9 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     free(board);
 
     // get result
-    printf("validMoves->length: %d\n", validMoves->length);
+    if (DEBUG)
+        printf("validMoves->length: %d\n", validMoves->length);
+
     double *winRate = (double *)malloc(validMoves->length * sizeof(double));
     for (int cnt = 0; cnt < validMoves->length; cnt++)
     {
@@ -426,7 +430,9 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
         {
             winRate[cnt] = (double)h_movesWins[cnt] / h_movesCount[cnt];
         }
-        printf("Move %d: %d wins, %d total, win rate: %f\n", validMoves->moves[cnt], h_movesWins[cnt], h_movesCount[cnt], winRate[cnt]);
+
+        if (DEBUG)
+            printf("Move %d: %d wins, %d total, win rate: %f\n", validMoves->moves[cnt], h_movesWins[cnt], h_movesCount[cnt], winRate[cnt]);
     }
 
     // find best move
