@@ -31,8 +31,25 @@ __device__ __host__ void update_valid_moves(const int x, const int y, int curren
 
             if (board[BOARD_W * current_y + current_x] == EMPTY)
             {
-                movesBuffer[bufferIndex] = BOARD_W * current_y + current_x;
-                bufferIndex++;
+                int move = BOARD_W * current_y + current_x;
+
+                // avoid duplication
+                bool duplicate = false;
+                for (int i = 0; i < bufferIndex; i++)
+                {
+                    if (movesBuffer[i] == move)
+                    {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if (!duplicate)
+                {
+                    // not duplicated
+                    movesBuffer[bufferIndex] = move;
+                    bufferIndex++;
+                }
+
                 break;
             }
         }
@@ -91,30 +108,13 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
     Moves *moves = new Moves();
 
     // copy array
-    moves->moves = new int[64];
-    int arrayIndex = 0;
-    for (int bufferCnt = 0; bufferCnt < bufferIndex; bufferCnt++)
+    moves->moves = (int *)malloc(bufferIndex * sizeof(int));
+    for (int cnt = 0; cnt < bufferIndex; cnt++)
     {
-        int thisMove = movesBuffer[bufferCnt];
-
-        // avoid duplication
-        bool duplicate = false;
-        for (int i = 0; i < arrayIndex; i++)
-        {
-            if (moves->moves[i] == thisMove)
-            {
-                duplicate = true;
-                break;
-            }
-        }
-
-        if (!duplicate)
-        {
-            moves->moves[arrayIndex] = thisMove;
-            arrayIndex++;
-        }
+        moves->moves[cnt] = movesBuffer[cnt];
     }
-    moves->length = arrayIndex;
+
+    moves->length = bufferIndex;
 
     return moves;
 }
