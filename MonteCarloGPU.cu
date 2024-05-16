@@ -334,10 +334,6 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
                 firstMoveIndex = moveIndex;
             }
         }
-
-        // free memory
-        free(validMoves->moves);
-        free(validMoves);
     }
 
     // report result
