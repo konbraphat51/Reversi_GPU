@@ -1,0 +1,2 @@
+make
+compute-sanitizer ./run
