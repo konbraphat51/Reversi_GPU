@@ -325,6 +325,8 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
 
     mcGPU_kernel<<<dimGrid, dimBlock>>>(d_board, activePlayer, passed, d_movesCount, d_movesWins);
 
+    printf("Kernel finished \n");
+
     // get result
     double *winRate = (double *)malloc(validMoves->length * sizeof(double));
     for (int cnt = 0; cnt < validMoves->length; cnt++)
