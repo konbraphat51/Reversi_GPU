@@ -43,7 +43,7 @@ move_func strategies[] = {
     bind(minimax_move, _1, eval_pieces, 3),      // Minimax by piece count
     bind(minimax_move, _1, eval_pieces, 4),      // Minimax by piece count
     bind(minimax_move, _1, eval_pieces, 5),      // Minimax by piece count
-    bind(mcGPU_move, _1, 1e6),                   // Monte Carlo Tree Search (GPU)
+    bind(mcGPU_move, _1, 1e3),                   // Monte Carlo Tree Search (GPU)
     bind(MonteCarlo::mc_move, _1, 1e3)           // Monte Carlo Tree Search (CPU)
 };
 
