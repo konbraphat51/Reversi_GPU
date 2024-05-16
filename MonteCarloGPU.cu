@@ -318,8 +318,9 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     cudaMemset(d_movesCount, 0, validMoves->length * sizeof(int));
     cudaMemset(d_movesWins, 0, validMoves->length * sizeof(int));
 
-    dim3 dimGrid(threads / 256, 1);
-    dim3 dimBlock(256, 1, 1);
+    const int threadsPerBlock = 64;
+    dim3 dimGrid(threads / threadsPerBlock, 1);
+    dim3 dimBlock(threadsPerBlock, 1, 1);
 
     printf("Launching kernel \n");
 
