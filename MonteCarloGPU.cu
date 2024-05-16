@@ -286,7 +286,7 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     printf("mcGPU_move called\n");
 
     // convert BoardState to a format that can be used by the GPU
-    int board[BOARD_H * BOARD_W];
+    int *board = (int *)malloc(BOARD_H * BOARD_W * sizeof(int));
     for (int x = 0; x < BOARD_W; x++)
     {
         for (int y = 0; y < BOARD_H; y++)
@@ -310,9 +310,9 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     int *d_movesCount;
     int *d_movesWins;
 
-    cudaMalloc(&d_board, BOARD_H * BOARD_W * sizeof(int));
-    cudaMalloc(&d_movesCount, validMoves->length * sizeof(int));
-    cudaMalloc(&d_movesWins, validMoves->length * sizeof(int));
+    cudaMalloc((void **)&d_board, BOARD_H * BOARD_W * sizeof(int));
+    cudaMalloc((void **)&d_movesCount, validMoves->length * sizeof(int));
+    cudaMalloc((void **)&d_movesWins, validMoves->length * sizeof(int));
 
     cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemset(d_movesCount, 0, validMoves->length * sizeof(int));
@@ -338,6 +338,7 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     cudaFree(d_board);
     cudaFree(d_movesCount);
     cudaFree(d_movesWins);
+    free(board);
 
     // get result
     printf("validMoves->length: %d\n", validMoves->length);
