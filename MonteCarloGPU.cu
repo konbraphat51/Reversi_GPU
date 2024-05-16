@@ -273,12 +273,12 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
         }
     }
 
-    // // report result
-    // movesCount[firstMoveIndex]++;
-    // if (winner(boardCopy, me, other) == me)
-    // {
-    //     movesWins[firstMoveIndex]++;
-    // }
+    // report result
+    movesCount[firstMoveIndex]++;
+    if (winner(boardCopy, me, other) == me)
+    {
+        movesWins[firstMoveIndex]++;
+    }
 }
 
 extern "C" int mcGPU_move(BoardState *state, int threads)
