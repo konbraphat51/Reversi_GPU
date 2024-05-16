@@ -116,8 +116,6 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
 
     moves->length = bufferIndex;
 
-    delete movesBuffer;
-
     return moves;
 }
 
@@ -338,6 +336,7 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
             }
         }
 
+        delete validMoves->moves;
         delete validMoves;
     }
 
