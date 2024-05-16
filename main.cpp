@@ -126,7 +126,7 @@ void TestMcGPU()
 {
   int seed = 0;
 
-  const int round_per_agent = 100;
+  const int round_per_agent = 20;
 
   for (int opponent = 1; opponent <= 16; opponent++)
   {
@@ -135,7 +135,7 @@ void TestMcGPU()
     double time_opponent = 0;
     for (int i = 0; i < round_per_agent; i++)
     {
-      MatchResult result = SingleGame(opponent, 17, false);
+      MatchResult result = SingleGame(17, opponent, false);
       wins += result.winner == 1;
       time_GPU += result.player1_time;
       time_opponent += result.player2_time;
