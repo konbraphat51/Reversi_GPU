@@ -260,16 +260,16 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
         }
         else
         {
-            // choose a random move
-            int moveIndex = ComputeRandom(seed, validMoves->length);
-            int move = validMoves->moves[moveIndex];
-            apply_move(move, boardCopy, activePlayer, passed);
+            // // choose a random move
+            // int moveIndex = ComputeRandom(seed, validMoves->length);
+            // int move = validMoves->moves[moveIndex];
+            // apply_move(move, boardCopy, activePlayer, passed);
 
-            if (first)
-            {
-                first = false;
-                firstMoveIndex = moveIndex;
-            }
+            // if (first)
+            // {
+            //     first = false;
+            //     firstMoveIndex = moveIndex;
+            // }
         }
     }
 
