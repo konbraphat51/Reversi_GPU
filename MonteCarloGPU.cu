@@ -313,6 +313,7 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
             if (passed)
             {
                 // both passed, game is over
+                delete validMoves;
                 break;
             }
             else
@@ -344,6 +345,8 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
     {
         atomicAdd(&movesWins[firstMoveIndex], 1);
     }
+
+    delete boardCopy;
 }
 
 extern "C" int mcGPU_move(BoardState *state, int threads)
