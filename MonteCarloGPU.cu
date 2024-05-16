@@ -306,6 +306,13 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     }
 
     // set up GPU
+    int *h_movesCount = (int *)malloc(validMoves->length * sizeof(int));
+    int *h_movesWins = (int *)malloc(validMoves->length * sizeof(int));
+    for (int i = 0; i < validMoves->length; i++)
+    {
+        h_movesCount[i] = 0;
+        h_movesWins[i] = 0;
+    }
     int *d_board;
     int *d_movesCount;
     int *d_movesWins;
@@ -315,8 +322,8 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     cudaMalloc((void **)&d_movesWins, validMoves->length * sizeof(int));
 
     cudaMemcpy(d_board, board, BOARD_H * BOARD_W * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemset(d_movesCount, 0, validMoves->length * sizeof(int));
-    cudaMemset(d_movesWins, 0, validMoves->length * sizeof(int));
+    cudaMemcpy(d_movesCount, h_movesCount, validMoves->length * sizeof(int));
+    cudaMemcpy(d_movesWins, h_movesWins, validMoves->length * sizeof(int));
 
     const int threadsPerBlock = 64;
     dim3 dimGrid(threads / threadsPerBlock, 1);
@@ -329,8 +336,6 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     printf("Kernel finished \n");
 
     // copy results back
-    int h_movesCount[validMoves->length];
-    int h_movesWins[validMoves->length];
     cudaMemcpy(h_movesCount, d_movesCount, validMoves->length * sizeof(int), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_movesWins, d_movesWins, validMoves->length * sizeof(int), cudaMemcpyDeviceToHost);
 
