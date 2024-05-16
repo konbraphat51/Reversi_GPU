@@ -375,6 +375,8 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     }
 
     // set up GPU
+    cudaDeviceReset();
+
     int *h_movesCount = (int *)malloc(validMoves->length * sizeof(int));
     int *h_movesWins = (int *)malloc(validMoves->length * sizeof(int));
     for (int i = 0; i < validMoves->length; i++)
