@@ -238,47 +238,47 @@ __global__ void mcGPU_kernel(int *board, int activePlayer, bool passed, int *mov
         }
     }
 
-    // monte carlo simulation
-    bool first = true;
-    int firstMoveIndex = -1;
-    for (;;)
-    {
-        Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
+    // // monte carlo simulation
+    // bool first = true;
+    // int firstMoveIndex = -1;
+    // for (;;)
+    // {
+    //     Moves *validMoves = get_valid_moves(boardCopy, activePlayer);
 
-        if (validMoves->length == 0)
-        {
-            if (passed)
-            {
-                // both passed, game is over
-                break;
-            }
-            else
-            {
-                // first pass
-                passed = true;
-            }
-        }
-        else
-        {
-            // choose a random move
-            int moveIndex = ComputeRandom(seed, validMoves->length);
-            int move = validMoves->moves[moveIndex];
-            apply_move(move, boardCopy, activePlayer, passed);
+    //     if (validMoves->length == 0)
+    //     {
+    //         if (passed)
+    //         {
+    //             // both passed, game is over
+    //             break;
+    //         }
+    //         else
+    //         {
+    //             // first pass
+    //             passed = true;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         // choose a random move
+    //         int moveIndex = ComputeRandom(seed, validMoves->length);
+    //         int move = validMoves->moves[moveIndex];
+    //         apply_move(move, boardCopy, activePlayer, passed);
 
-            if (first)
-            {
-                first = false;
-                firstMoveIndex = moveIndex;
-            }
-        }
-    }
+    //         if (first)
+    //         {
+    //             first = false;
+    //             firstMoveIndex = moveIndex;
+    //         }
+    //     }
+    // }
 
-    // report result
-    movesCount[firstMoveIndex]++;
-    if (winner(boardCopy, me, other) == me)
-    {
-        movesWins[firstMoveIndex]++;
-    }
+    // // report result
+    // movesCount[firstMoveIndex]++;
+    // if (winner(boardCopy, me, other) == me)
+    // {
+    //     movesWins[firstMoveIndex]++;
+    // }
 }
 
 extern "C" int mcGPU_move(BoardState *state, int threads)
