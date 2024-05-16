@@ -94,7 +94,7 @@ __device__ __host__ Moves *get_valid_moves(int *board, int activePlayer)
     Moves *moves = new Moves();
 
     // copy array
-    moves->moves = (int *)malloc(bufferIndex * sizeof(int)
+    moves->moves = (int *)malloc(bufferIndex * sizeof(int));
     int arrayIndex = 0;
     for (int bufferCnt = 0; bufferCnt < bufferIndex; bufferCnt++)
     {
