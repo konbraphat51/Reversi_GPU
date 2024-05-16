@@ -392,8 +392,8 @@ extern "C" int mcGPU_move(BoardState *state, int threads)
     // dim3 dimGrid(threads / threadsPerBlock, 1);
     // dim3 dimBlock(threadsPerBlock, 1, 1);
     // DEBUG
-    dim3 dimGrid(10, 1);
-    dim3 dimBlock(64, 1, 1);
+    dim3 dimGrid(1, 1);
+    dim3 dimBlock(32, 1, 1);
 
     printf("Launching kernel \n");
 
